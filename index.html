@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>iPhone Gyroscope Test</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #111;
+      color: white;
+      font-family: sans-serif;
+      flex-direction: column;
+    }
+    #box {
+      width: 150px;
+      height: 150px;
+      background: cyan;
+      border-radius: 20px;
+      margin-top: 20px;
+      transition: transform 0.05s linear;
+    }
+    button {
+      padding: 12px 20px;
+      font-size: 18px;
+      border-radius: 10px;
+      border: none;
+      background: limegreen;
+      color: black;
+    }
+  </style>
+</head>
+<body>
+
+<h2>Tap to Enable Gyroscope</h2>
+<button id="startBtn">Enable Motion</button>
+<div id="box"></div>
+
+<script>
+const box = document.getElementById("box");
+const btn = document.getElementById("startBtn");
+
+function handleOrientation(event) {
+  let x = event.gamma; // left/right
+  let y = event.beta;  // front/back
+
+  box.style.transform = `rotateY(${x}deg) rotateX(${-y}deg)`;
+}
+
+btn.addEventListener("click", () => {
+  if (typeof DeviceOrientationEvent.requestPermission === "function") {
+    DeviceOrientationEvent.requestPermission()
+      .then(response => {
+        if (response === "granted") {
+          window.addEventListener("deviceorientation", handleOrientation);
+          btn.style.display = "none";
+        } else {
+          alert("Permission denied 😢");
+        }
+      })
+      .catch(console.error);
+  } else {
+    // For Android or older devices
+    window.addEventListener("deviceorientation", handleOrientation);
+    btn.style.display = "none";
+  }
+});
+</script>
+
+</body>
+</html>
