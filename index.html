@@ -2,68 +2,93 @@
 <html>
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>iPhone Gyroscope Test</title>
+  <title>Gyro Depth Scene</title>
   <style>
     body {
       margin: 0;
+      overflow: hidden;
       height: 100vh;
+      background: radial-gradient(circle at center, #0a0a1a, #000);
+      perspective: 1000px;
       display: flex;
       justify-content: center;
       align-items: center;
-      background: #111;
-      color: white;
-      font-family: sans-serif;
-      flex-direction: column;
     }
-    #box {
-      width: 150px;
-      height: 150px;
-      background: cyan;
+
+    .scene {
+      width: 300px;
+      height: 500px;
+      position: relative;
+      transform-style: preserve-3d;
+    }
+
+    .layer {
+      position: absolute;
+      width: 100%;
+      height: 100%;
       border-radius: 20px;
-      margin-top: 20px;
-      transition: transform 0.05s linear;
     }
+
+    .back {
+      background: url('https://picsum.photos/400/600?blur=5') center/cover;
+      transform: translateZ(-80px);
+    }
+
+    .middle {
+      background: url('https://picsum.photos/400/600?grayscale') center/cover;
+      transform: translateZ(-30px);
+    }
+
+    .front {
+      background: url('https://picsum.photos/400/600') center/cover;
+      transform: translateZ(20px);
+      box-shadow: 0 0 40px rgba(0,255,255,0.3);
+    }
+
     button {
+      position: absolute;
+      bottom: 30px;
       padding: 12px 20px;
       font-size: 18px;
       border-radius: 10px;
       border: none;
-      background: limegreen;
-      color: black;
+      background: cyan;
     }
   </style>
 </head>
 <body>
 
-<h2>Tap to Enable Gyroscope</h2>
+<div class="scene" id="scene">
+  <div class="layer back"></div>
+  <div class="layer middle"></div>
+  <div class="layer front"></div>
+</div>
+
 <button id="startBtn">Enable Motion</button>
-<div id="box"></div>
 
 <script>
-const box = document.getElementById("box");
+const scene = document.getElementById("scene");
 const btn = document.getElementById("startBtn");
 
-function handleOrientation(event) {
-  let x = event.gamma; // left/right
-  let y = event.beta;  // front/back
+function handleOrientation(e) {
+  let x = e.gamma;  // left-right
+  let y = e.beta;   // front-back
 
-  box.style.transform = `rotateY(${x}deg) rotateX(${-y}deg)`;
+  let rotateY = x * 0.6;
+  let rotateX = y * 0.6;
+
+  scene.style.transform = `rotateY(${rotateY}deg) rotateX(${-rotateX}deg)`;
 }
 
 btn.addEventListener("click", () => {
   if (typeof DeviceOrientationEvent.requestPermission === "function") {
-    DeviceOrientationEvent.requestPermission()
-      .then(response => {
-        if (response === "granted") {
-          window.addEventListener("deviceorientation", handleOrientation);
-          btn.style.display = "none";
-        } else {
-          alert("Permission denied 😢");
-        }
-      })
-      .catch(console.error);
+    DeviceOrientationEvent.requestPermission().then(res => {
+      if (res === "granted") {
+        window.addEventListener("deviceorientation", handleOrientation);
+        btn.style.display = "none";
+      }
+    });
   } else {
-    // For Android or older devices
     window.addEventListener("deviceorientation", handleOrientation);
     btn.style.display = "none";
   }
